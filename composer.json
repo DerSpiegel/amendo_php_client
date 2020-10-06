@@ -1,0 +1,30 @@
+{
+  "name": "der-spiegel/amendo-client",
+  "description": "PHP client for OneVision Amendo https://www.onevision.com/solutions/image-editing/amendo/",
+  "homepage": "https://github.com/DerSpiegel/amendo_php_client",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tim Strehle",
+      "homepage": "https://github.com/tistre",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.4.0",
+    "monolog/monolog": "^2.1",
+    "psr/log": "^1.1"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "DerSpiegel\\AmendoClient\\": "src/"
+    }
+  }
+}
