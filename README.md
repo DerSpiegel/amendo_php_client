@@ -80,7 +80,7 @@ $amendoConfig->setSoapClientOption('connection_timeout', 5);
 **Create an AmendoClient object using the AmendoConfig object:**
 
 ```php
-$amendoClient = new AmendoClient($amendoConfig);
+$amendoClient = new AmendoClient($amendoConfig, $logger);
 ```
 
 **Create a SimpleJobTicket object:**
