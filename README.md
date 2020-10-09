@@ -35,7 +35,13 @@ $ docker run --rm --interactive --tty \
   composer require monolog/monolog
 ```
 
-### Using the library
+### Build PHP Docker image with SOAP support
+
+```
+$ docker build --tag amendo-client-php docker/php
+```
+
+### Use the library
 
 The `UsageExample.php` example script can be used without modification by
 setting the environment variable `AMENDO_SERVER` to the Amendo server
@@ -185,7 +191,7 @@ Returns an object whose contents depends on the current status of the job.
 ```
 $ docker run -it --rm --name amendo-client-example \
   --volume "$PWD":/usr/src/myapp --workdir /usr/src/myapp \
-  php:7.4-cli php MyExample.php
+  amendo-client-php php MyExample.php
 ```
 
 ## Authors
