@@ -113,10 +113,6 @@ abstract class JobTicket extends PropertyList
      */
     public function getData(): string
     {
-        if (count($this->runListFiles) < 1) {
-            throw new AmendoClientException(__METHOD__ . ': JobTicket ' .
-                    'incomplete. No files has been added to the JobTicket.');
-        }
         return $this->domDocument->saveXml();
     }
 
