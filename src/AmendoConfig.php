@@ -8,8 +8,10 @@ namespace DerSpiegel\AmendoClient;
  */
 class AmendoConfig
 {
+    protected ?string $baseUrl = null;
     protected ?string $wsdl = null;
     protected array $soapClientOptions = array();
+
 
     /**
      * AmendoConfig constructor.
@@ -18,9 +20,21 @@ class AmendoConfig
     public function __construct(string $baseUrl = null)
     {
         if ($baseUrl !== null) {
+            $this->baseUrl = $baseUrl;
             $this->wsdl = $baseUrl . '/ws_core_gateway/CommonWeb?wsdl';
         }
     }
+
+
+    /**
+     * Get base URL of Amendo server
+     * @return string|null
+     */
+    public function getBaseUrl(): ?string
+    {
+        return $this->baseUrl;
+    }
+
 
     /**
      * Get path/URI to Amendo WSDL file.
@@ -31,6 +45,7 @@ class AmendoConfig
         return $this->wsdl;
     }
 
+
     /**
      * Set path/URI to Amendo WSDL file.
      * @param string $wsdl WSDL file or URL.
@@ -39,6 +54,7 @@ class AmendoConfig
     {
         $this->wsdl = $wsdl;
     }
+
 
     /**
      * Get SoapClient options array.
@@ -49,6 +65,7 @@ class AmendoConfig
         return $this->soapClientOptions;
     }
 
+
     /**
      * Get SoapClient option value.
      * See PHP SoapClient documentation for details.
@@ -57,9 +74,12 @@ class AmendoConfig
      */
     public function getSoapClientOption(string $key)
     {
-	if (!array_key_exists($key, $this->soapClientOptions)) return null;
+        if (!array_key_exists($key, $this->soapClientOptions)) {
+            return null;
+        }
         return $this->soapClientOptions[$key];
     }
+
 
     /**
      * Set SoapClient option value.
