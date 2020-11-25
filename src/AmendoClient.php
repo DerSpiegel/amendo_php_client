@@ -20,7 +20,7 @@ class AmendoClient
     /**
      * AmendoClient constructor.
      * @param AmendoConfig $config AmendoClient configuration.
-     * @param ?LoggerInterface $logger Logger to use.
+     * @param LoggerInterface $logger Logger to use.
      */
     public function __construct(
             AmendoConfig $config, LoggerInterface $logger)
