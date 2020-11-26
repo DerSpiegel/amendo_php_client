@@ -4,7 +4,6 @@ namespace DerSpiegel\AmendoClient\JobTicket;
 
 use DOMDocument;
 use DOMElement;
-use DerSpiegel\AmendoClient\AmendoClientException;
 
 /**
  * Class JobTicket.
@@ -18,6 +17,7 @@ abstract class JobTicket extends PropertyList
     protected ?DOMElement $priorityElement = null;
     protected array $runListFiles = array();
 
+
     /**
      * JobTicket constructor.
      * @param string $jobElementName Name of XML root element.
@@ -25,17 +25,18 @@ abstract class JobTicket extends PropertyList
     protected function __construct(string $jobElementName)
     {
         $this->domDocument = new DOMDocument();
-        $this->domDocument->standalone = true;
+        $this->domDocument->xmlStandalone = true;
         $this->domDocument->formatOutput = true;
         $this->jobElement = $this->domDocument->createElement($jobElementName);
         $this->jobElement = $this->domDocument->appendChild($this->jobElement);
         $this->jobElement->setAttribute('Name', 'PHP AmendoClient-' . time());
         $this->runListElement = $this->domDocument->createElement('RunList');
         $this->runListElement =
-                $this->jobElement->appendChild($this->runListElement);
+            $this->jobElement->appendChild($this->runListElement);
         $this->runListElement->setAttribute('ID', '');
         parent::__construct($this->jobElement);
     }
+
 
     /**
      * Get array of added RunListFiles.
@@ -56,6 +57,7 @@ abstract class JobTicket extends PropertyList
         $this->jobElement->setAttribute('Name', $name);
     }
 
+
     /**
      * Set JobTicket job priority.
      * @param int $priority Job priority (range: 1-100).
@@ -63,13 +65,14 @@ abstract class JobTicket extends PropertyList
     public function setJobPriority(int $priority): void
     {
         if ($this->priorityElement === null) {
-            $this->priorityElement = 
-                    $this->domDocument->createElement('Priority');
+            $this->priorityElement =
+                $this->domDocument->createElement('Priority');
             $this->priorityElement = $this->jobElement->insertBefore(
-                    $this->priorityElement, $this->runListElement->nextSibling);
+                $this->priorityElement, $this->runListElement->nextSibling);
         }
         $this->setElementText($this->priorityElement, strval($priority));
     }
+
 
     /**
      * Add file to JobTicket run list.
@@ -83,6 +86,7 @@ abstract class JobTicket extends PropertyList
         return $file;
     }
 
+
     /**
      * Add URI to JobTicket run list.
      * @param string $uri URI to source file.
@@ -94,6 +98,7 @@ abstract class JobTicket extends PropertyList
         $this->runListFiles[] = $file;
         return $file;
     }
+
 
     /**
      * Add download URI to JobTicket run list.
@@ -107,6 +112,7 @@ abstract class JobTicket extends PropertyList
         return $file;
     }
 
+
     /**
      * Get JobTicket XML as string.
      * @return string JobTicket XML as string.
@@ -115,6 +121,7 @@ abstract class JobTicket extends PropertyList
     {
         return $this->domDocument->saveXml();
     }
+
 
     /**
      * Set text on DOMElement.

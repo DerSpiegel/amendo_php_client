@@ -19,6 +19,7 @@ abstract class PropertyList
     protected DOMElement $parentElement;
     protected array $propertyLists = array();
 
+
     /**
      * PropertyList constructor.
      * @param DOMElement $parentElement Parent element to add the properties to.
@@ -28,6 +29,7 @@ abstract class PropertyList
         $this->parentElement = $parentElement;
     }
 
+
     /**
      * Set string property with the specified name on the specified
      * property list.
@@ -36,13 +38,16 @@ abstract class PropertyList
      * @param string $value Property string value.
      */
     public function setStringProperty(
-            string $list, string $name, string $value): void
-    {
+        string $list,
+        string $name,
+        string $value
+    ): void {
         $listElement = $this->getPropertyList($list);
         $property = $this->createSubProperty(
-                $name, self::PROPERTY_STRING, $value);
+            $name, self::PROPERTY_STRING, $value);
         $listElement->appendChild($property);
     }
+
 
     /**
      * Set boolean property with the specified name on the specified
@@ -52,13 +57,16 @@ abstract class PropertyList
      * @param string $value Property boolean value.
      */
     public function setBooleanProperty(
-            string $list, string $name, bool $value): void
-    {
+        string $list,
+        string $name,
+        bool $value
+    ): void {
         $listElement = $this->getPropertyList($list);
         $property = $this->createSubProperty(
-                $name, self::PROPERTY_BOOLEAN, $value ? 'true' : 'false');
+            $name, self::PROPERTY_BOOLEAN, $value ? 'true' : 'false');
         $listElement->appendChild($property);
     }
+
 
     /**
      * Set integer property with the specified name on the specified
@@ -68,13 +76,16 @@ abstract class PropertyList
      * @param string $value Property integer value.
      */
     public function setIntegerProperty(
-            string $list, string $name, int $value): void
-    {
+        string $list,
+        string $name,
+        int $value
+    ): void {
         $listElement = $this->getPropertyList($list);
         $property = $this->createSubProperty(
-                $name, self::PROPERTY_INTEGER, strval($value));
+            $name, self::PROPERTY_INTEGER, strval($value));
         $listElement->appendChild($property);
     }
+
 
     /**
      * Set float property with the specified name on the specified
@@ -84,13 +95,16 @@ abstract class PropertyList
      * @param string $value Property float value.
      */
     public function setFloatProperty(
-            string $list, string $name, float $value): void
-    {
+        string $list,
+        string $name,
+        float $value
+    ): void {
         $listElement = $this->getPropertyList($list);
         $property = $this->createSubProperty(
-                $name, self::PROPERTY_FLOAT, strval($value));
+            $name, self::PROPERTY_FLOAT, strval($value));
         $listElement->appendChild($property);
     }
+
 
     /**
      * Get property list DOMElement.
@@ -106,16 +120,17 @@ abstract class PropertyList
         $doc = $this->parentElement->ownerDocument;
         $propertyList = $doc->createElement('Property');
         $propertyList = $this->parentElement->insertBefore($propertyList,
-                $this->parentElement->firstChild);
+            $this->parentElement->firstChild);
         $propertyList->setAttributeNS(
-                'http://www.w3.org/2001/XMLSchema-instance',
-                'xsi:type', self::PROPERTY_LIST);
+            'http://www.w3.org/2001/XMLSchema-instance',
+            'xsi:type', self::PROPERTY_LIST);
         $nameElement = $doc->createElement('Name');
         $nameElement = $propertyList->appendChild($nameElement);
         $nameElement->appendChild($doc->createTextNode($list));
         $this->propertyLists[$list] = $propertyList;
         return $propertyList;
     }
+
 
     /**
      * Create a new SubProperty DOMElement.
@@ -125,8 +140,10 @@ abstract class PropertyList
      * @return DOMElement DOMElement of property.
      */
     protected function createSubProperty(
-            string $name, string $type, string $value): DOMElement
-    {
+        string $name,
+        string $type,
+        string $value
+    ): DOMElement {
         $doc = $this->parentElement->ownerDocument;
         $propertyElement = $doc->createElement('SubProperty');
         $propertyElement->setAttribute('xsi:type', $type);
