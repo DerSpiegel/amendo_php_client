@@ -52,6 +52,15 @@ class AmendoClient
 
 
     /**
+     * @return AmendoConfig
+     */
+    public function getConfig(): AmendoConfig
+    {
+        return $this->config;
+    }
+
+
+    /**
      * Get underlying SoapClient instance.
      * @return SoapClient instance.
      */
