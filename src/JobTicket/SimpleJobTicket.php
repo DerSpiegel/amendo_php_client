@@ -2,8 +2,8 @@
 
 namespace DerSpiegel\AmendoClient\JobTicket;
 
-use DOMElement;
 use DerSpiegel\AmendoClient\AmendoClientException;
+use DOMElement;
 
 /**
  * Class SimpleJobTicket
@@ -13,6 +13,7 @@ class SimpleJobTicket extends JobTicket
 {
     protected ?DOMElement $assemblyLineRefElement = null;
 
+
     /**
      * SimpleJobTicket constructor.
      */
@@ -21,6 +22,7 @@ class SimpleJobTicket extends JobTicket
         parent::__construct('Job');
     }
 
+
     /**
      * Set AssemblyLineReference.
      * @param string $reference Assembly line name.
@@ -28,13 +30,14 @@ class SimpleJobTicket extends JobTicket
     public function setAssemblyLineReference(string $reference): void
     {
         if ($this->assemblyLineRefElement === null) {
-            $this->assemblyLineRefElement = 
-                    $this->domDocument->createElement('AssemblyLineReference');
+            $this->assemblyLineRefElement =
+                $this->domDocument->createElement('AssemblyLineReference');
             $this->assemblyLineRefElement = $this->jobElement->appendChild(
-                    $this->assemblyLineRefElement);
+                $this->assemblyLineRefElement);
         }
         $this->setElementText($this->assemblyLineRefElement, $reference);
     }
+
 
     /**
      * Get JobTicket XML as string.
@@ -44,7 +47,7 @@ class SimpleJobTicket extends JobTicket
     {
         if ($this->assemblyLineRefElement === null) {
             throw new AmendoClientException(__METHOD__ . ': SimpleJobTicket ' .
-                    'incomplete. No AssemblyLineReference has been set.');
+                'incomplete. No AssemblyLineReference has been set.');
         }
         return parent::getData();
     }

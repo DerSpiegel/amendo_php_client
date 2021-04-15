@@ -15,7 +15,7 @@ class AmendoConfig
 
     /**
      * AmendoConfig constructor.
-     * @param string $baseUrl Base URL of Amendo server.
+     * @param string|null $baseUrl Base URL of Amendo server.
      */
     public function __construct(string $baseUrl = null)
     {
