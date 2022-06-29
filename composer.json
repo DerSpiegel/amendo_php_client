@@ -12,10 +12,10 @@
     }
   ],
   "require": {
-    "php": ">=7.4 <8.1",
+    "php": ">=7.4 <8.2",
+    "ext-dom": "*",
     "ext-soap": "*",
-    "psr/log": "^1.1",
-    "ext-dom": "*"
+    "psr/log": ">=1.1"
   },
   "config": {
     "preferred-install": {
