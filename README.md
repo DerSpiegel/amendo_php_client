@@ -28,11 +28,11 @@ If you want to help developing this library, Here’s how to get started
 $ docker run --rm --interactive --tty \
   --volume $PWD:/app \
   --volume ${COMPOSER_HOME:-$HOME/.composer}:/tmp \
-  composer install
+  composer/composer install
 $ docker run --rm --interactive --tty \
   --volume $PWD:/app \
   --volume ${COMPOSER_HOME:-$HOME/.composer}:/tmp \
-  composer require monolog/monolog
+  composer/composer require monolog/monolog
 ```
 
 ### Build PHP Docker image with SOAP support
