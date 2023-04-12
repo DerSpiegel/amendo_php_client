@@ -35,7 +35,7 @@ class AmendoClient
                 'incomplete. WSDL location has not been set.');
         }
         $this->logger->info(
-            "Using WSDL from <{$wsdl}>",
+            "Using WSDL from <$wsdl>",
             [
                 'method' => __METHOD__,
                 'wsdl' => $wsdl
@@ -81,7 +81,7 @@ class AmendoClient
             $jobId = $this->soapClient->startJobTicket(
                 urlencode($ticket->getData()));
             $this->logger->info(
-                "Created new Amendo job with job id <{$jobId}>",
+                "Created new Amendo job with job id <$jobId>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId
@@ -105,7 +105,7 @@ class AmendoClient
         try {
             $status = $this->soapClient->status($jobId);
             $this->logger->info(
-                "Status of Amendo job <{$jobId}> is <{$status}>",
+                "Status of Amendo job <$jobId> is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -114,7 +114,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -130,7 +130,7 @@ class AmendoClient
         try {
             $result = $this->soapClient->result($jobId);
             $this->logger->info(
-                "Result of Amendo job <{$jobId}> is <" .
+                "Result of Amendo job <$jobId> is <" .
                 print_r($result, true) . ">",
                 [
                     'method' => __METHOD__,
@@ -140,7 +140,7 @@ class AmendoClient
             return $result;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -156,7 +156,7 @@ class AmendoClient
         try {
             $status = $this->soapClient->pause($jobId);
             $this->logger->info(
-                "Pause status of Amendo job <{$jobId}> is <{$status}>",
+                "Pause status of Amendo job <$jobId> is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -165,7 +165,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -181,7 +181,7 @@ class AmendoClient
         try {
             $status = $this->soapClient->resume($jobId);
             $this->logger->info(
-                "Resume status of Amendo job <{$jobId}> is <{$status}>",
+                "Resume status of Amendo job <$jobId> is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -190,7 +190,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -206,7 +206,7 @@ class AmendoClient
         try {
             $status = $this->soapClient->cancel($jobId);
             $this->logger->info(
-                "Cancel status of Amendo job <{$jobId}> is <{$status}>",
+                "Cancel status of Amendo job <$jobId> is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -215,7 +215,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -231,8 +231,8 @@ class AmendoClient
         try {
             $status = $this->soapClient->cancelAndDelete($jobId);
             $this->logger->info(
-                "CancelAndDelete status of Amendo job <{$jobId}> " .
-                "is <{$status}>",
+                "CancelAndDelete status of Amendo job <$jobId> " .
+                "is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -241,7 +241,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
@@ -257,7 +257,7 @@ class AmendoClient
         try {
             $status = $this->soapClient->deleteFromStorage($jobId);
             $this->logger->info(
-                "Delete status of Amendo job <{$jobId}> is <{$status}>",
+                "Delete status of Amendo job <$jobId> is <$status>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId,
@@ -266,7 +266,7 @@ class AmendoClient
             return $status;
         } catch (Exception $ex) {
             throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <{$jobId}>: " .
+                __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
