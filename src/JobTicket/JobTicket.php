@@ -4,6 +4,7 @@ namespace DerSpiegel\AmendoClient\JobTicket;
 
 use DOMDocument;
 use DOMElement;
+use DOMNode;
 
 /**
  * Class JobTicket.
@@ -13,8 +14,8 @@ abstract class JobTicket extends PropertyList
 {
     protected DOMDocument $domDocument;
     protected DOMElement $jobElement;
-    protected DOMElement $runListElement;
-    protected ?DOMElement $priorityElement = null;
+    protected DOMNode $runListNode;
+    protected ?DOMNode $priorityNode = null;
     protected array $runListFiles = array();
 
 
@@ -30,10 +31,10 @@ abstract class JobTicket extends PropertyList
         $this->jobElement = $this->domDocument->createElement($jobElementName);
         $this->jobElement = $this->domDocument->appendChild($this->jobElement);
         $this->jobElement->setAttribute('Name', 'PHP AmendoClient-' . time());
-        $this->runListElement = $this->domDocument->createElement('RunList');
-        $this->runListElement =
-            $this->jobElement->appendChild($this->runListElement);
-        $this->runListElement->setAttribute('ID', '');
+        $runListElement = $this->domDocument->createElement('RunList');
+        $this->runListNode =
+            $this->jobElement->appendChild($runListElement);
+        $this->runListNode->setAttribute('ID', '');
         parent::__construct($this->jobElement);
     }
 
@@ -64,13 +65,14 @@ abstract class JobTicket extends PropertyList
      */
     public function setJobPriority(int $priority): void
     {
-        if ($this->priorityElement === null) {
-            $this->priorityElement =
-                $this->domDocument->createElement('Priority');
-            $this->priorityElement = $this->jobElement->insertBefore(
-                $this->priorityElement, $this->runListElement->nextSibling);
+        if ($this->priorityNode === null) {
+            $priorityElement = $this->domDocument->createElement('Priority');
+
+            $this->priorityNode = $this->jobElement->insertBefore(
+                $priorityElement, $this->runListNode->nextSibling);
         }
-        $this->setElementText($this->priorityElement, strval($priority));
+
+        $this->setElementText($this->priorityNode, strval($priority));
     }
 
 
@@ -81,7 +83,7 @@ abstract class JobTicket extends PropertyList
      */
     public function addFile(string $path): RunListFile
     {
-        $file = RunListFile::createFile($path, $this->runListElement);
+        $file = RunListFile::createFile($path, $this->runListNode);
         $this->runListFiles[] = $file;
         return $file;
     }
@@ -94,7 +96,7 @@ abstract class JobTicket extends PropertyList
      */
     public function addUri(string $uri): RunListFile
     {
-        $file = RunListFile::createUri($uri, $this->runListElement);
+        $file = RunListFile::createUri($uri, $this->runListNode);
         $this->runListFiles[] = $file;
         return $file;
     }
@@ -107,7 +109,7 @@ abstract class JobTicket extends PropertyList
      */
     public function addDownloadUri(string $uri): RunListFile
     {
-        $file = RunListFile::createDownloadUri($uri, $this->runListElement);
+        $file = RunListFile::createDownloadUri($uri, $this->runListNode);
         $this->runListFiles[] = $file;
         return $file;
     }
@@ -117,7 +119,7 @@ abstract class JobTicket extends PropertyList
      * Get JobTicket XML as string.
      * @return string JobTicket XML as string.
      */
-    public function getData(): string
+    public function toXml(): string
     {
         return $this->domDocument->saveXml();
     }
@@ -125,15 +127,14 @@ abstract class JobTicket extends PropertyList
 
     /**
      * Set text on DOMElement.
-     * @param DOMElement $element Element to set text on.
+     * @param DOMNode $node Element to set text on.
      * @param string $text New text.
      */
-    protected function setElementText(DOMElement $element, string $text): void
+    protected function setElementText(DOMNode $node, string $text): void
     {
-        while ($element->hasChildNodes()) {
-            $element->removeChild($element->firstChild);
+        while ($node->hasChildNodes()) {
+            $node->removeChild($node->firstChild);
         }
-        $element->appendChild($this->domDocument->createTextNode($text));
+        $node->appendChild($this->domDocument->createTextNode($text));
     }
-
 }

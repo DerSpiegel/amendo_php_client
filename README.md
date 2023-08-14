@@ -2,7 +2,7 @@
 
 [OneVision Amendo](https://www.onevision.com/solutions/image-editing/amendo/)
 is automated image enhancement software.
-This PHP client library uses its SOAP API.
+This PHP client library uses its REST API.
 
 This is not an official library supplied by the OneVision vendor.
 It has been developed for the WoodWing Assets project at the German
@@ -29,16 +29,6 @@ $ docker run --rm --interactive --tty \
   --volume $PWD:/app \
   --volume ${COMPOSER_HOME:-$HOME/.composer}:/tmp \
   composer/composer install
-$ docker run --rm --interactive --tty \
-  --volume $PWD:/app \
-  --volume ${COMPOSER_HOME:-$HOME/.composer}:/tmp \
-  composer/composer require monolog/monolog
-```
-
-### Build PHP Docker image with SOAP support
-
-```
-$ docker build --tag amendo-client-php docker/php
 ```
 
 ### Use the library
@@ -67,14 +57,6 @@ and modify the copied file accordingly.
 
 ```php
 $amendoConfig = new AmendoConfig($amendoServerUrl);
-```
-
-**Optional: Set desired SoapClient options. See
-[PHP SoapClient](https://www.php.net/manual/en/class.soapclient.php)
-documentation for details:**
-
-```php
-$amendoConfig->setSoapClientOption('connection_timeout', 5);
 ```
 
 **Create an AmendoClient object using the AmendoConfig object:**
@@ -170,33 +152,24 @@ $jobId = $amendoClient->startJobTicket($jobTicket);
 On success a positive `$jobId` is returned by the Amendo server.  
 On error, either an exception is thrown or the Amendo server returns `0`.
 
-**Optional: Querying the job status:**
-
+**Optional: Querying the job overview:**
 ```php
-$status = $amendoClient->getStatus($jobId);
+$result = $amendoClient->getJobOverview($jobId);
 ```
 
-Returns a string containig the current job status. See Amendo documentation for
-details.
-
-**Optional: Querying the job result:**
-```php
-$result = $amendoClient->getResult($jobId);
-```
-
-Returns an object whose contents depends on the current status of the job.
+Returns an array whose contents depends on the current status of the job.
 
 ### Then run your copy
 
 ```
 $ docker run -it --rm --name amendo-client-example \
   --volume "$PWD":/usr/src/myapp --workdir /usr/src/myapp \
-  amendo-client-php php MyExample.php
+  php:8.2-fpm php MyExample.php
 ```
 
 ## Authors
 
-* [Tim Strehle](https://github.com/tistre) - https://twitter.com/tistre
+* [Tim Strehle](https://github.com/tistre)
 
 ## License
 

@@ -17,19 +17,13 @@ $amendoServerUrl = getenv('AMENDO_SERVER') ?
         getenv('AMENDO_SERVER') : 'http://amendo.example.com';
 
 // Create AmendoConfig object
-$amendoConfig = new AmendoConfig($amendoServerUrl);
-
-// Set AmendoConfig options
-// See PHP SoapClient for all possible options.
-// Change SOAP endpoint location (optional)
-$amendoConfig->setSoapClientOption(
-        'location', $amendoServerUrl . '/ws_core_gateway/CommonWeb');
-
-// Change connection timeout (optional)
-$amendoConfig->setSoapClientOption('connection_timeout', 5);
-
-// Enable SoapClient request/response tracing for debugging (optional)
-$amendoConfig->setSoapClientOption('trace', true);
+$amendoConfig = new AmendoConfig(
+    baseUrl: $amendoServerUrl,
+    // Set API key (optional):
+    apiKey: 'SECRET',
+    // Change connection timeout (optional):
+    httpRequestTimeout: 5
+);
 
 // Create AmendoClient object
 $amendoClient = new AmendoClient($amendoConfig, $logger);
@@ -67,21 +61,13 @@ $file->setFloatProperty('Custom', 'AFloat', 3.1415);
 
 // Submit job ticket to Amendo
 $jobId = $amendoClient->startJobTicket($jobTicket);
-echo "JOB ID: {$jobId}\n";
-
-// Debugging (optional):
-// SoapClient option trace must be set to true (see above)
-$soapClient = $amendoClient->getSoapClient();
-$response =$soapClient->__getLastResponse();
-echo "RESPONSE:\n{$response}\n";
+echo "JOB ID: $jobId\n";
 
 // Job status & result
 if ($jobId) {
     for ($i = 0; $i < 3; $i++) {
         if ($i) sleep(10);
-        $status = $amendoClient->getStatus($jobId);
-        echo "STATUS: {$status}\n";
-        $result = $amendoClient->getResult($jobId);
+        $result = $amendoClient->getJobOverview($jobId);
         echo "RESULT:\n";
         var_dump($result);
         echo "\n";

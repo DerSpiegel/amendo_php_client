@@ -4,88 +4,100 @@ namespace DerSpiegel\AmendoClient;
 
 use DerSpiegel\AmendoClient\JobTicket\JobTicket;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use SoapClient;
+use Psr\Log\LogLevel;
 
-/**
- * Class AmendoClient.
- * @package DerSpiegel\AmendoClient
- */
+
 class AmendoClient
 {
-    protected AmendoConfig $config;
-    protected SoapClient $soapClient;
-    protected LoggerInterface $logger;
+    const HTTP_HEADER_API_KEY = 'X-API-KEY';
+
+    protected Client $httpClient;
 
 
-    /**
-     * AmendoClient constructor.
-     * @param AmendoConfig $config AmendoClient configuration.
-     * @param LoggerInterface $logger Logger to use.
-     */
     public function __construct(
-        AmendoConfig $config,
-        LoggerInterface $logger
-    ) {
-        $this->config = $config;
-        $this->logger = $logger;
-        $wsdl = $config->getWsdl();
-        if ($wsdl === null) {
-            throw new AmendoClientException(__METHOD__ . ': Configuration ' .
-                'incomplete. WSDL location has not been set.');
-        }
-        $this->logger->info(
-            "Using WSDL from <$wsdl>",
-            [
-                'method' => __METHOD__,
-                'wsdl' => $wsdl
-            ]);
-        $options = $config->getSoapClientOptions();
-        try {
-            $this->soapClient = new SoapClient($wsdl, $options);
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ': failed: ' . $ex->getMessage(),
-                $ex->getCode(), $ex);
-        }
+        readonly AmendoConfig    $config,
+        readonly LoggerInterface $logger
+    )
+    {
+        $this->httpClient = $this->newHttpClient();
     }
 
 
-    /**
-     * @return AmendoConfig
-     */
-    public function getConfig(): AmendoConfig
+    protected function newHttpClient(): Client
     {
-        return $this->config;
+        $stack = HandlerStack::create();
+
+        $stack->push(
+            Middleware::log(
+                $this->logger,
+                new MessageFormatter('Sent AmendoClient {method} request to {uri}. Amendo response headers: {res_headers}'),
+                LogLevel::DEBUG
+            )
+        );
+
+        return new Client(['handler' => $stack]);
     }
 
 
-    /**
-     * Get underlying SoapClient instance.
-     * @return SoapClient instance.
-     */
-    public function getSoapClient(): SoapClient
+    public function request(
+        string  $method,
+        string  $url,
+        array   $headers = [],
+        ?string $rawBody = null
+    ): ResponseInterface
     {
-        return $this->soapClient;
+        $headers['User-Agent'] = $this->config->httpUserAgent;
+
+        if (!empty($this->config->apiKey)) {
+            $headers[self::HTTP_HEADER_API_KEY] = $this->config->apiKey;
+        }
+
+        $options = [
+            RequestOptions::HEADERS => $headers,
+            RequestOptions::TIMEOUT => $this->config->httpRequestTimeout,
+            RequestOptions::VERIFY => $this->config->verifySslCertificate
+        ];
+
+        if (!empty($rawBody)) {
+            $options[RequestOptions::BODY] = $rawBody;
+        }
+
+        $this->logger->debug(sprintf('Sending AmendoClient %s request to <%s>.', $method, $url));
+
+        return $this->httpClient->request($method, $this->config->baseUrl . $url, $options);
     }
 
 
     /**
      * Start job ticket.
      * @param JobTicket $ticket JobTicket instance to start.
-     * @return int OneVison Workspace JobTicket ID or 0 on error.
+     * @return int OneVison Workspace JobTicket ID or NULL on error.
      */
     public function startJobTicket(JobTicket $ticket): int
     {
         try {
-            $jobId = $this->soapClient->startJobTicket(
-                urlencode($ticket->getData()));
+            $response = $this->request(
+                method: 'POST',
+                url: '/ws/rest/jobstart/ticket',
+                rawBody: $ticket->toXml()
+            );
+
+            $jobId = intval((string)$response->getBody());
+
             $this->logger->info(
                 "Created new Amendo job with job id <$jobId>",
                 [
                     'method' => __METHOD__,
                     'jobId' => $jobId
                 ]);
+
             return $jobId;
         } catch (Exception $ex) {
             throw new AmendoClientException(
@@ -96,174 +108,21 @@ class AmendoClient
 
 
     /**
-     * Get status of job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function getStatus(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->status($jobId);
-            $this->logger->info(
-                "Status of Amendo job <$jobId> is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
-
-
-    /**
-     * Get result of job.
+     * Get job overview.
      * @param int $jobId OneVision Workspace job id.
      * @return mixed Result object.
      */
-    public function getResult(int $jobId)
+    public function getJobOverview(int $jobId): array
     {
         try {
-            $result = $this->soapClient->result($jobId);
-            $this->logger->info(
-                "Result of Amendo job <$jobId> is <" .
-                print_r($result, true) . ">",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'result' => $result
-                ]);
-            return $result;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
+            $response = $this->request(
+                method: 'GET',
+                url: sprintf('/ws/rest/job/%d/overview', $jobId),
+                headers: ['Accept' => 'application/json', 'Content-Type' => 'application/json'],
+                rawBody: '{"query":"","variables":{}}'
+            );
 
-
-    /**
-     * Pause job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function pause(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->pause($jobId);
-            $this->logger->info(
-                "Pause status of Amendo job <$jobId> is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
-
-
-    /**
-     * Resume job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function resume(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->resume($jobId);
-            $this->logger->info(
-                "Resume status of Amendo job <$jobId> is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
-
-
-    /**
-     * Cancel job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function cancel(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->cancel($jobId);
-            $this->logger->info(
-                "Cancel status of Amendo job <$jobId> is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
-
-
-    /**
-     * Cancel and delete job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function cancelAndDelete(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->cancelAndDelete($jobId);
-            $this->logger->info(
-                "CancelAndDelete status of Amendo job <$jobId> " .
-                "is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
-        } catch (Exception $ex) {
-            throw new AmendoClientException(
-                __METHOD__ . ": failed for Amendo job <$jobId>: " .
-                $ex->getMessage(), $ex->getCode(), $ex);
-        }
-    }
-
-
-    /**
-     * Delete job.
-     * @param int $jobId OneVision Workspace job id.
-     * @return string Status string.
-     */
-    public function delete(int $jobId): string
-    {
-        try {
-            $status = $this->soapClient->deleteFromStorage($jobId);
-            $this->logger->info(
-                "Delete status of Amendo job <$jobId> is <$status>",
-                [
-                    'method' => __METHOD__,
-                    'jobId' => $jobId,
-                    'status' => $status
-                ]);
-            return $status;
+            return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception $ex) {
             throw new AmendoClientException(
                 __METHOD__ . ": failed for Amendo job <$jobId>: " .

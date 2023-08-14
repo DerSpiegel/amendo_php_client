@@ -3,6 +3,8 @@
 namespace DerSpiegel\AmendoClient\JobTicket;
 
 use DOMElement;
+use DOMException;
+use DOMNode;
 
 /**
  * Class PropertyList
@@ -16,17 +18,17 @@ abstract class PropertyList
     public const PROPERTY_FLOAT = 'PropertyFloat';
     public const PROPERTY_LIST = 'PropertyList';
 
-    protected DOMElement $parentElement;
-    protected array $propertyLists = array();
+    protected array $propertyLists = [];
 
 
     /**
      * PropertyList constructor.
-     * @param DOMElement $parentElement Parent element to add the properties to.
+     * @param DOMNode $parentNode Parent element to add the properties to.
      */
-    protected function __construct(DOMElement $parentElement)
+    protected function __construct(
+        protected DOMNode $parentNode
+    )
     {
-        $this->parentElement = $parentElement;
     }
 
 
@@ -54,7 +56,8 @@ abstract class PropertyList
      * property list.
      * @param string $list List name.
      * @param string $name Property name.
-     * @param string $value Property boolean value.
+     * @param bool $value Property boolean value.
+     * @throws DOMException
      */
     public function setBooleanProperty(
         string $list,
@@ -73,7 +76,8 @@ abstract class PropertyList
      * property list.
      * @param string $list List name.
      * @param string $name Property name.
-     * @param string $value Property integer value.
+     * @param int $value Property integer value.
+     * @throws DOMException
      */
     public function setIntegerProperty(
         string $list,
@@ -92,7 +96,8 @@ abstract class PropertyList
      * property list.
      * @param string $list List name.
      * @param string $name Property name.
-     * @param string $value Property float value.
+     * @param float $value Property float value.
+     * @throws DOMException
      */
     public function setFloatProperty(
         string $list,
@@ -110,25 +115,26 @@ abstract class PropertyList
      * Get property list DOMElement.
      * If the list does not yet exist, a new list is created.
      * @param string $list Property list name.
-     * @return DOMElement DOMElement of property list.
+     * @return DOMNode DOMNode of property list.
+     * @throws DOMException
      */
-    protected function getPropertyList(string $list): DOMElement
+    protected function getPropertyList(string $list): DOMNode
     {
         if (array_key_exists($list, $this->propertyLists)) {
             return $this->propertyLists[$list];
         }
-        $doc = $this->parentElement->ownerDocument;
-        $propertyList = $doc->createElement('Property');
-        $propertyList = $this->parentElement->insertBefore($propertyList,
-            $this->parentElement->firstChild);
-        $propertyList->setAttributeNS(
+        $doc = $this->parentNode->ownerDocument;
+        $propertyListElement = $doc->createElement('Property');
+        $propertyListNode = $this->parentNode->insertBefore($propertyListElement,
+            $this->parentNode->firstChild);
+        $propertyListNode->setAttributeNS(
             'http://www.w3.org/2001/XMLSchema-instance',
             'xsi:type', self::PROPERTY_LIST);
         $nameElement = $doc->createElement('Name');
-        $nameElement = $propertyList->appendChild($nameElement);
-        $nameElement->appendChild($doc->createTextNode($list));
-        $this->propertyLists[$list] = $propertyList;
-        return $propertyList;
+        $nameNode = $propertyListNode->appendChild($nameElement);
+        $nameNode->appendChild($doc->createTextNode($list));
+        $this->propertyLists[$list] = $propertyListNode;
+        return $propertyListNode;
     }
 
 
@@ -144,7 +150,7 @@ abstract class PropertyList
         string $type,
         string $value
     ): DOMElement {
-        $doc = $this->parentElement->ownerDocument;
+        $doc = $this->parentNode->ownerDocument;
         $propertyElement = $doc->createElement('SubProperty');
         $propertyElement->setAttribute('xsi:type', $type);
         $nameElement = $doc->createElement('Name');

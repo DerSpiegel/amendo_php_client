@@ -3,6 +3,7 @@
 namespace DerSpiegel\AmendoClient\JobTicket;
 
 use DOMElement;
+use DOMNode;
 
 /**
  * Class RunListFile.
@@ -14,9 +15,6 @@ class RunListFile extends PropertyList
     public const TYPE_URI = 'Uri';
     public const TYPE_DOWNLOADURI = 'DownloadUri';
 
-    private string $url;
-    private string $type;
-    private DOMElement $runListElement;
     private DOMElement $fileElement;
 
 
@@ -24,19 +22,17 @@ class RunListFile extends PropertyList
      * RunListFile constructor.
      * @param string $url URL or path to file.
      * @param string $type Type of RunListFile (File, Uri or DownloadUri)
-     * @param DOMElement $runListElement
+     * @param DOMNode $runListNode
      */
     protected function __construct(
-        string $url,
-        string $type,
-        DOMElement $runListElement
-    ) {
-        $this->url = $url;
-        $this->type = $type;
-        $this->runListElement = $runListElement;
-        $doc = $runListElement->ownerDocument;
+        protected string  $url,
+        protected string  $type,
+        protected DOMNode $runListNode
+    )
+    {
+        $doc = $runListNode->ownerDocument;
         $this->fileElement = $doc->createElement('File');
-        $this->fileElement = $runListElement->appendChild($this->fileElement);
+        $this->fileElement = $runListNode->appendChild($this->fileElement);
         $this->fileElement->setAttribute($type, $url);
         parent::__construct($this->fileElement);
     }
@@ -45,41 +41,44 @@ class RunListFile extends PropertyList
     /**
      * Create RunListFile of type File.
      * @param string $path Path to file.
-     * @param DOMElement $runListElement
+     * @param DOMElement $runListNode
      * @return RunListFile RunListFile instance.
      */
     public static function createFile(
-        string $path,
-        DOMElement $runListElement
-    ): self {
-        return new RunListFile($path, self::TYPE_FILE, $runListElement);
+        string  $path,
+        DOMNode $runListNode
+    ): self
+    {
+        return new RunListFile($path, self::TYPE_FILE, $runListNode);
     }
 
 
     /**
      * Create RunListFile of type Uri.
      * @param string $uri URI to file.
-     * @param DOMElement $runListElement
+     * @param DOMNode $runListNode
      * @return RunListFile RunListFile instance.
      */
     public static function createUri(
-        string $uri,
-        DOMElement $runListElement
-    ): self {
-        return new RunListFile($uri, self::TYPE_URI, $runListElement);
+        string  $uri,
+        DOMNode $runListNode
+    ): self
+    {
+        return new RunListFile($uri, self::TYPE_URI, $runListNode);
     }
 
 
     /**
      * Create RunListFile of type DownloadUri.
      * @param string $uri Download URI to file.
-     * @param DOMElement $runListElement
+     * @param DOMNode $runListNode
      * @return RunListFile RunListFile instance.
      */
     public static function createDownloadUri(
-        string $uri,
-        DOMElement $runListElement
-    ): self {
-        return new RunListFile($uri, self::TYPE_DOWNLOADURI, $runListElement);
+        string  $uri,
+        DOMNode $runListNode
+    ): self
+    {
+        return new RunListFile($uri, self::TYPE_DOWNLOADURI, $runListNode);
     }
 }
