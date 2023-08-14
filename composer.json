@@ -12,10 +12,13 @@
     }
   ],
   "require": {
-    "php": ">=7.4 <8.3",
+    "php": ">=8.1 <8.3",
     "ext-dom": "*",
-    "ext-soap": "*",
+    "guzzlehttp/guzzle": ">=6.3 <7.6",
     "psr/log": ">=1.1"
+  },
+  "require-dev": {
+    "monolog/monolog": "^3.4"
   },
   "config": {
     "preferred-install": {

@@ -43,12 +43,12 @@ class SimpleJobTicket extends JobTicket
      * Get JobTicket XML as string.
      * @return string JobTicket XML as string.
      */
-    public function getData(): string
+    public function toXml(): string
     {
         if ($this->assemblyLineRefElement === null) {
             throw new AmendoClientException(__METHOD__ . ': SimpleJobTicket ' .
                 'incomplete. No AssemblyLineReference has been set.');
         }
-        return parent::getData();
+        return parent::toXml();
     }
 }
