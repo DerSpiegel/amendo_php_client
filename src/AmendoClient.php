@@ -71,7 +71,7 @@ class AmendoClient
 
         $this->logger->debug(sprintf('Sending AmendoClient %s request to <%s>.', $method, $url));
 
-        return $this->httpClient->request($method, $this->config->baseUrl . $url, $options);
+        return $this->httpClient->request($method, $url, $options);
     }
 
 
@@ -85,7 +85,7 @@ class AmendoClient
         try {
             $response = $this->request(
                 method: 'POST',
-                url: '/ws/rest/jobstart/ticket',
+                url: $this->config->baseUrl . '/ws/rest/jobstart/ticket',
                 rawBody: $ticket->toXml()
             );
 
@@ -117,16 +117,60 @@ class AmendoClient
         try {
             $response = $this->request(
                 method: 'GET',
-                url: sprintf('/ws/rest/job/%d/overview', $jobId),
+                url: $this->config->baseUrl . sprintf('/ws/rest/job/%d/overview', $jobId),
                 headers: ['Accept' => 'application/json', 'Content-Type' => 'application/json'],
                 rawBody: '{"query":"","variables":{}}'
             );
 
-            return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception $ex) {
             throw new AmendoClientException(
                 __METHOD__ . ": failed for Amendo job <$jobId>: " .
                 $ex->getMessage(), $ex->getCode(), $ex);
+        }
+    }
+
+
+    /**
+     * Download an image result file from Amendo
+     */
+    public function downloadFileToPath(string $url, string $targetPath): void
+    {
+        try {
+            $httpResponse = $this->request('GET', $url);
+            $this->writeResponseBodyToPath($httpResponse, $targetPath);
+        } catch (Exception $e) {
+            throw new AmendoClientException(
+                sprintf('%s: Failed to download <%s>: %s', __METHOD__, $url, $e->getMessage()),
+                $e->getCode(), $e);
+        }
+    }
+
+
+    protected function writeResponseBodyToPath(ResponseInterface $httpResponse, string $targetPath): void
+    {
+        $fp = fopen($targetPath, 'wb');
+
+        if ($fp === false) {
+            throw new AmendoClientException(sprintf('%s: Failed to open <%s> for writing', __METHOD__,
+                $targetPath));
+        }
+
+        $ok = true;
+
+        while ($data = $httpResponse->getBody()->read(1024)) {
+            $ok = fwrite($fp, $data);
+
+            if ($ok === false) {
+                break;
+            }
+        }
+
+        fclose($fp);
+
+        if (!$ok) {
+            throw new AmendoClientException(sprintf('%s: Failed to write HTTP response to <%s>', __METHOD__,
+                $targetPath));
         }
     }
 }
