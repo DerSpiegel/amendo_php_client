@@ -16,6 +16,8 @@ use Psr\Log\LogLevel;
 
 class AmendoClient
 {
+    const HTTP_HEADER_API_KEY = 'X-API-KEY';
+
     protected Client $httpClient;
 
 
@@ -54,7 +56,7 @@ class AmendoClient
         $headers['User-Agent'] = $this->config->httpUserAgent;
 
         if (!empty($this->config->apiKey)) {
-            $headers['X-API-KEY'] = $this->config->apiKey;
+            $headers[self::HTTP_HEADER_API_KEY] = $this->config->apiKey;
         }
 
         $options = [
