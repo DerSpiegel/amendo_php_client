@@ -164,7 +164,7 @@ Returns an array whose contents depends on the current status of the job.
 ```
 $ docker run -it --rm --name amendo-client-example \
   --volume "$PWD":/usr/src/myapp --workdir /usr/src/myapp \
-  php:8.2-fpm php MyExample.php
+  php:8.3-cli php MyExample.php
 ```
 
 ## Authors
