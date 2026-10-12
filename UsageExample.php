@@ -5,6 +5,7 @@ use DerSpiegel\AmendoClient\AmendoClient;
 use DerSpiegel\AmendoClient\JobTicket\SimpleJobTicket;
 use Monolog\Logger;
 use Monolog\Handler\ErrorLogHandler;
+use Uri\Rfc3986\Uri;
 
 require_once 'vendor/autoload.php';
 
@@ -18,7 +19,7 @@ $amendoServerUrl = getenv('AMENDO_SERVER') ?
 
 // Create AmendoConfig object
 $amendoConfig = new AmendoConfig(
-    baseUrl: $amendoServerUrl,
+    baseUrl: new Uri($amendoServerUrl),
     // Set API key (optional):
     apiKey: 'SECRET',
     // Change connection timeout (optional):

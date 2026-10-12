@@ -85,7 +85,7 @@ class AmendoClient
         try {
             $response = $this->request(
                 method: 'POST',
-                url: $this->config->baseUrl . '/ws/rest/jobstart/ticket',
+                url: $this->config->baseUrl->withPath('/ws/rest/jobstart/ticket')->toRawString(),
                 rawBody: $ticket->toXml()
             );
 
@@ -117,7 +117,7 @@ class AmendoClient
         try {
             $response = $this->request(
                 method: 'GET',
-                url: $this->config->baseUrl . sprintf('/ws/rest/job/%d/overview', $jobId),
+                url: $this->config->baseUrl->withPath(sprintf('/ws/rest/job/%d/overview', $jobId))->toRawString(),
                 headers: ['Accept' => 'application/json', 'Content-Type' => 'application/json'],
                 rawBody: '{"query":"","variables":{}}'
             );

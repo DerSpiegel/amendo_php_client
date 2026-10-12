@@ -12,9 +12,10 @@
     }
   ],
   "require": {
-    "php": "^8.4",
+    "php": "^8.5",
     "ext-dom": "*",
-    "guzzlehttp/guzzle": ">=6.3 <8.0",
+    "ext-uri": "*",
+    "guzzlehttp/guzzle": ">=6.3 <9.0",
     "psr/log": ">=1.1"
   },
   "require-dev": {
